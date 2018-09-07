@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 project(win32api)
 
-add_executable(win32api main.cpp)
-
-install(TARGETS win32api RUNTIME DESTINATION bin)
+add_library(win32api SHARED "")
+    target_include_directories(win32api PRIVATE user32/)
+    target_link_libraries(win32api user32)
+    
+add_subdirectory(user32/)
