@@ -1,39 +1,52 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.14)
 project(win32api)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(PkgConfig REQUIRED)
 
-set(CMAKE_CXX_STANDARD 14)
-
-find_package(Boost REQUIRED COMPONENTS filesystem locale log)
-find_package(SDL2 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS locale log)
 find_package(X11 REQUIRED)
+pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
-include_directories(.)
-add_definitions("-DTRACE")
 
-set(WIN32_INCLUDE_DIRS advapi32/ gdi32/ kernel32/ user32/)
+set(WIN32_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/advapi32
+    ${CMAKE_CURRENT_SOURCE_DIR}/gdi32
+    ${CMAKE_CURRENT_SOURCE_DIR}/kernel32
+    ${CMAKE_CURRENT_SOURCE_DIR}/user32)
 
-add_library(win32api SHARED lib.cpp)
-    target_include_directories(win32api PRIVATE
-        ${Boost_INCLUDE_DIRS}
-        ${SDL2_INCLUDE_DIR}
-        ${X11_X11_INCLUDE_PATH})
-    target_include_directories(win32api PRIVATE
-        common/
-        ${WIN32_INCLUDE_DIRS})
+if(${BUILD_WIN32_STATIC})
+    add_library(win32api STATIC ${CMAKE_CURRENT_SOURCE_DIR}/lib.cpp)
+else()
+    add_library(win32api SHARED ${CMAKE_CURRENT_SOURCE_DIR}/lib.cpp)
+endif()
+    set_target_properties(win32api PROPERTIES
+        CXX_VISIBILITY_PRESET       hidden)
+    target_compile_features(win32api
+        PRIVATE
+            cxx_std_17)
+    target_compile_definitions(win32api
+        PRIVATE
+            WIN32_EXPORTS
+            $<$<CONFIG:Debug>:TRACE>)
+    target_include_directories(win32api
+        PUBLIC
+            ${WIN32_INCLUDE_DIRS}
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/common)
     target_link_libraries(win32api
-        ${Boost_LIBRARIES}
-        ${SDL2_LIBRARY}
-        ${X11_X11_LIB})
+        PRIVATE
+            Boost::locale Boost::log
+            PkgConfig::SDL2
+            X11::X11)
 
-add_executable(win32api_test main.cpp)
-    target_include_directories(win32api_test PRIVATE ${WIN32_INCLUDE_DIRS})
-    target_link_libraries(win32api_test win32api)
+add_subdirectory(rgssad/)
 
 add_subdirectory(advapi32/)
 add_subdirectory(common/)
-add_subdirectory(extra/)
 add_subdirectory(gdi32/)
 add_subdirectory(kernel32/)
 add_subdirectory(user32/)
+
+add_subdirectory(extra/tktk_bitmap)
+add_subdirectory(extra/wfcrypt)
