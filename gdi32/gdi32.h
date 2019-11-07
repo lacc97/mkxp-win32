@@ -8,11 +8,11 @@ extern "C" {
 #endif
 
 WIN32_API HBRUSH gdi32_CreateSolidBrush(
-  COLORREF color
+    COLORREF color
 );
 
 WIN32_API BOOL gdi32_DeleteObject(
-  HGDIOBJ ho
+    HGDIOBJ ho
 );
 
 #ifdef __cplusplus
