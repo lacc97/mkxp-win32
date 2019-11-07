@@ -11,11 +11,13 @@
 
 namespace fs = std::filesystem;
 
+using namespace std::string_view_literals;
+
 /*
  * https://github.com/luxrck/rgssad/blob/master/src/main.rs
  */
 
-constexpr std::string_view RGSSAD_VERSION = "0.1.4";
+constexpr std::string_view RGSSAD_VERSION = "0.1.4"sv;
 
 inline uint32_t advanceMagic(uint32_t& magic) {
     uint32_t old = magic;
@@ -51,8 +53,11 @@ inline bool wu32(std::ostream& os, uint32_t data) {
     return bool(os);
 }
 
-RGSS::Archive::Entry::Entry(uint32_t size, uint32_t offs, uint32_t mag) : m_Size(size), m_Offset(offs), m_Magic(mag),
-                                                                          m_Data() {
+RGSS::Archive::Entry::Entry(uint32_t size, uint32_t offs, uint32_t mag)
+    : m_Size(size),
+      m_Offset(offs),
+      m_Magic(mag),
+      m_Data() {
 }
 
 void RGSS::Archive::Entry::read(std::istream& is) {
@@ -73,7 +78,11 @@ void RGSS::Archive::Entry::read(std::istream& is) {
         m_Data[myOffset + ii] ^= uint8_t((myMagic >> (ii * 8)) & 0xff);
 }
 
-RGSS::Archive::Archive() : m_Magic{0}, m_Version{0}, m_Entries{}, mp_IStream{nullptr} {
+RGSS::Archive::Archive()
+    : m_Magic{0},
+      m_Version{0},
+      m_Entries{},
+      mp_IStream{nullptr} {
 }
 
 bool RGSS::Archive::open(const std::string& loc) {
@@ -83,7 +92,7 @@ bool RGSS::Archive::open(const std::string& loc) {
     mp_IStream = new std::ifstream(loc);
 
     if(!(*mp_IStream)) {
-        error() << "Failed to open file '" << loc << "'";
+        spdlog::error("Failed to open file '{}'", loc);
         return false;
     }
 
@@ -93,7 +102,7 @@ bool RGSS::Archive::open(const std::string& loc) {
     std::string fileT(reinterpret_cast<char*>(header), 6);
 
     if(fileT != "RGSSAD") {
-        error() << "File '" << loc << "' is not a RGSS archive";
+        spdlog::error("File '{}' is not a RGSS archive", loc);
         return false;
     }
 
@@ -106,7 +115,7 @@ bool RGSS::Archive::open(const std::string& loc) {
             return openRGSS3A(*mp_IStream);
 
         default:
-            error() << "Unrecognised version number " << m_Version;
+            spdlog::error("Unrecognised version number {}", m_Version);
             return false;
     }
 }
@@ -140,7 +149,7 @@ bool RGSS::Archive::openRGSSAD(std::istream& is) {
         eMagic = m_Magic;
 
         if(m_Entries.find(eName) != m_Entries.end()) {
-            warn() << "Entry '" << eName << "' already exists. Skipping...";
+            spdlog::warn("Entry '{}' already exists. Skipping...", eName);
             is.seekg(eSize, std::ios::cur);
             continue;
         }
@@ -157,7 +166,7 @@ bool RGSS::Archive::openRGSS3A(std::istream& is) {
     m_Magic = 0;
 
     if(!ru32(is, m_Magic)) {
-        error() << "Failed to read magic number";
+        spdlog::error("Failed to read magic number");
     }
 
     m_Magic *= 9;
@@ -201,7 +210,7 @@ bool RGSS::Archive::openRGSS3A(std::istream& is) {
         }
 
         if(m_Entries.find(eName) != m_Entries.end()) {
-            warn() << "Entry '" << eName << "' already exists. Skipping...";
+            spdlog::warn("Entry '{}' already exists. Skipping...", eName);
             continue;
         }
 
@@ -222,8 +231,9 @@ void printUsage() {
 
 void list(const RGSS::Archive& arc) {
     for(const auto& e : arc.entries())
-        std::cout << e.first << ": Entry {{size: " << e.second.size() << ", offset: " << e.second.offset()
-                  << ", magic: " << e.second.magic() << "}}" << std::endl;
+        std::cout << fmt::format("{}: Entry {{size: {}, offset: {}, magic: {}}}\n", e.first, e.second.size(),
+                                 e.second.offset(), e.second.magic());
+    std::cout.flush();
 }
 
 void unpack(RGSS::Archive& arc, const std::string& dir, const std::string& filter) {
@@ -239,7 +249,7 @@ void unpack(RGSS::Archive& arc, const std::string& dir, const std::string& filte
         if(!std::regex_match(e.first, filt))
             continue;
 
-        std::cout << "Extracting: " << e.first << std::endl;
+        std::cout << fmt::format("Extracting '{}'", e.first) << std::endl;
 
         RGSS::Archive::Entry& entry = arc[e.first];
 
@@ -247,7 +257,7 @@ void unpack(RGSS::Archive& arc, const std::string& dir, const std::string& filte
         std::ofstream fos = fn_create(fName);
 
         if(!fos) {
-            error() << "Failed to open file '" << fName << "'";
+            spdlog::error("Failed to open file '{}'", fName);
             entry.clear();
             return;
         }
@@ -280,7 +290,7 @@ int main(int argc, char* argv[]) {
                 RGSS::Archive arc;
 
                 if(!arc.open(argv[2])) {
-                    error() << "Failed to read archive '" << argv[2] << "'";
+                    spdlog::error("Failed to read archive '{}'", argv[2]);
                     return;
                 }
 
@@ -295,7 +305,7 @@ int main(int argc, char* argv[]) {
                 RGSS::Archive arc;
 
                 if(!arc.open(argv[2])) {
-                    error() << "Failed to read archive '" << argv[2] << "'";
+                    spdlog::error("Failed to read archive '{}'", argv[2]);
                     return;
                 }
 

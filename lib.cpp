@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "log.h"
+
 //#include <map>
 //
 //namespace {
@@ -34,6 +36,11 @@
 
 namespace {
     std::vector<void*> s_HandledPtrs = {nullptr};
+
+
+    __attribute__((constructor)) void setupLogger() {
+        spdlog::set_pattern("[%Y-%m-%d %T.%e] [%^%L%$] %v");
+    }
 }
 
 template <>

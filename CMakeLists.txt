@@ -4,6 +4,7 @@ project(win32api)
 find_package(PkgConfig REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS locale log)
+find_package(spdlog REQUIRED)
 find_package(X11 REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
@@ -36,8 +37,9 @@ endif()
             ${CMAKE_CURRENT_SOURCE_DIR}/common)
     target_link_libraries(win32api
         PRIVATE
-            Boost::locale Boost::log
+            Boost::locale
             PkgConfig::SDL2
+            spdlog::spdlog
             X11::X11)
 
 add_subdirectory(rgssad/)
@@ -49,4 +51,4 @@ add_subdirectory(kernel32/)
 add_subdirectory(user32/)
 
 add_subdirectory(extra/tktk_bitmap)
-add_subdirectory(extra/wfcrypt)
+#add_subdirectory(extra/wfcrypt)

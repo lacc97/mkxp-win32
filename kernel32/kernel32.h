@@ -79,8 +79,8 @@ WIN32_API int kernel32_MultiByteToWideChar(
 );
 
 WIN32_API void kernel32_RtlZeroMemory(
-    PVOID ptr,
-    SIZE_T cnt
+    PVOID pDestination,
+    SIZE_T nSize
 );
 
 WIN32_API int kernel32_WideCharToMultiByte(

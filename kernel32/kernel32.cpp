@@ -29,16 +29,13 @@ WIN32_API UINT kernel32_GetPrivateProfileInt(LPCTSTR lpAppName, LPCTSTR lpKeyNam
 }
 
 WIN32_API UINT kernel32_GetPrivateProfileIntA(LPCSTR lpAppName, LPCSTR lpKeyName, INT nDefault, LPCSTR lpFileName) {
-    debug() << "Requesting '" << lpAppName << "/" << lpKeyName << "' from file '" << lpFileName << "'.";
+    SPDLOG_TRACE("kernel32::GetPrivateProfileIntA(lpAppName=\"{}\", lpKeyName=\"{}\", nDefault={}, lpFileName=\"{}\")",
+                 lpAppName, lpKeyName, nDefault, lpFileName);
 
     INIConfiguration privateProfile;
     privateProfile.load(toUnixPath(lpFileName));
 
-    int ret = privateProfile.getIntProperty(lpAppName, lpKeyName, nDefault);
-
-    debug() << "Entry '" << lpAppName << "." << lpKeyName << "' has value " << ret;
-
-    return ret;
+    return privateProfile.getIntProperty(lpAppName, lpKeyName, nDefault);
 }
 
 namespace {
@@ -72,7 +69,9 @@ WIN32_API DWORD kernel32_GetPrivateProfileSection(LPCTSTR lpAppName, LPTSTR lpRe
 
 WIN32_API DWORD kernel32_GetPrivateProfileSectionA(LPCSTR lpAppName, LPSTR lpReturnedString, DWORD nSize,
                                                    LPCSTR lpFileName) {
-    debug() << "Requesting section '" << lpAppName << "' from file '" << lpFileName << "'.";
+    SPDLOG_TRACE(
+        "kernel32::GetPrivateProfileSectionA(lpAppName=\"{}\", lpReturnedString={}, nSize={}, lpFileName=\"{}\")",
+        lpAppName, (void*) (lpReturnedString), nSize, lpFileName);
 
     INIConfiguration privateProfile;
 
@@ -87,7 +86,8 @@ WIN32_API DWORD kernel32_GetPrivateProfileSectionNames(LPTSTR lpszReturnBuffer, 
 }
 
 WIN32_API DWORD kernel32_GetPrivateProfileSectionNamesA(LPSTR lpszReturnBuffer, DWORD nSize, LPCSTR lpFileName) {
-    debug() << "Requesting section names from file '" << lpFileName << "'.";
+    SPDLOG_TRACE("kernel32::GetPrivateProfileSectionNamesA(lpszReturnBuffer={}, nSize={}, lpFileName=\"{}\")",
+                 (void*) (lpszReturnBuffer), nSize, lpFileName);
 
     INIConfiguration privateProfile;
 
@@ -106,7 +106,9 @@ WIN32_API DWORD kernel32_GetPrivateProfileString(LPCTSTR lpAppName, LPCTSTR lpKe
 WIN32_API DWORD kernel32_GetPrivateProfileStringA(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault,
                                                   LPSTR lpReturnedString,
                                                   DWORD nSize, LPCSTR lpFileName) {
-    debug() << "Requesting '" << lpAppName << "/" << lpKeyName << "' from file '" << lpFileName << "'.";
+    SPDLOG_TRACE(
+        "kernel32::GetPrivateProfileStringA(lpAppName=\"{}\", lpKeyName=\"{}\", lpDefault=\"{}\", lpReturnedString={}, nSize={}, lpFileName=\"{}\")",
+        lpAppName, lpKeyName, lpDefault, (void*) (lpReturnedString), nSize, lpFileName);
 
     INIConfiguration privateProfile;
 
@@ -166,7 +168,7 @@ WIN32_API int kernel32_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCCH l
     else
         mbstr = std::string(lpMultiByteStr, cbMultiByte);
 
-    debug() << "Converting " << charset << "string to UTF-16.";
+    SPDLOG_DEBUG("Converting {} string to UTF-16", charset);
 
     int extraNullCharacter = (cbMultiByte == -1 ? 1 : 0);
 
@@ -175,7 +177,7 @@ WIN32_API int kernel32_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCCH l
     if(cchWideChar == 0)
         return utf16String.length() + extraNullCharacter;
     else if(cchWideChar < utf16String.length() + extraNullCharacter) {
-        error() << "Failed to convert " << charset << " string. Buffer is too small.";
+        spdlog::error("Failed to convert {} string because buffer is too small", charset);
         return FALSE;
     }
 
@@ -187,10 +189,10 @@ WIN32_API int kernel32_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCCH l
     return utf16String.length() + extraNullCharacter;
 }
 
-WIN32_API void kernel32_RtlZeroMemory(PVOID ptr, SIZE_T cnt) {
-    trace() << "Zeroing memory of size " << cnt << " at address " << ptr << ".";
+WIN32_API void kernel32_RtlZeroMemory(PVOID pDestination, SIZE_T nSize) {
+    SPDLOG_TRACE("kernel32::RtlZeroMemory(pDestination={}, nSize={})", pDestination, nSize);
 
-    std::memset(ptr, 0, cnt);
+    std::memset(pDestination, 0, nSize);
 }
 
 WIN32_API int kernel32_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int cchWideChar,
@@ -207,7 +209,7 @@ WIN32_API int kernel32_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH 
     else
         wcstr = wcstring(lpWideCharStr, cchWideChar);
 
-    debug() << "Converting UTF-16 string to " << charset << ".";
+    SPDLOG_DEBUG("Converting UTF-16 string to {}", charset);
 
     int extraNullCharacter = (cchWideChar == -1 ? 1 : 0);
 
@@ -216,7 +218,7 @@ WIN32_API int kernel32_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH 
     if(cbMultiByte == 0)
         return mbString.length() + extraNullCharacter;
     else if(cchWideChar < mbString.length() + extraNullCharacter) {
-        error() << "Failed to convert string to " << charset << ". Buffer is too small.";
+        spdlog::error("Failed to convert string to {} because buffer is too small", charset);
         return FALSE;
     }
 
@@ -236,7 +238,8 @@ WIN32_API BOOL kernel32_WritePrivateProfileSection(LPCTSTR lpAppName, LPCTSTR lp
 }
 
 WIN32_API BOOL kernel32_WritePrivateProfileSectionA(LPCSTR lpAppName, LPCSTR lpString, LPCSTR lpFileName) {
-    debug() << "Writing section '" << lpAppName << "' in file '" << lpFileName << "'.";
+    SPDLOG_TRACE("kernel32::WritePrivateProfileSectionA(lpAppName=\"{}\", lpString=\"{}\", lpFileName=\"{}\")",
+                 lpAppName, lpString, lpFileName);
 
     std::string fp = toUnixPath(lpFileName);
 
@@ -268,8 +271,9 @@ WIN32_API BOOL kernel32_WritePrivateProfileString(LPCTSTR lpAppName, LPCTSTR lpK
 
 WIN32_API BOOL kernel32_WritePrivateProfileStringA(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpString,
                                                    LPCSTR lpFileName) {
-    debug() << "Writing string '" << lpString << "' to '" << lpAppName << "/" << lpKeyName << "' in file '"
-            << lpFileName << "'.";
+    SPDLOG_TRACE(
+        "kernel32::WritePrivateProfileStringA(lpAppName=\"{}\", lpKeyName=\"{}\", lpString=\"{}\", lpFileName=\"{}\")",
+        lpAppName, lpKeyName, lpString, lpFileName);
 
     std::string fp = toUnixPath(lpFileName);
 
