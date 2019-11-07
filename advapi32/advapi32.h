@@ -8,12 +8,12 @@ extern "C" {
 #endif
 
 WIN32_API BOOL advapi32_GetUserName(
-    LPTSTR   lpBuffer,
+    LPTSTR lpBuffer,
     LPDWORD pcbBuffer
 );
 
 WIN32_API BOOL advapi32_GetUserNameA(
-    LPSTR   lpBuffer,
+    LPSTR lpBuffer,
     LPDWORD pcbBuffer
 );
 

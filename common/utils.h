@@ -5,7 +5,9 @@
 #include <vector>
 
 namespace String {
-    void tokenize(std::vector<std::string>& v, const std::string& s, const std::string& delim);
+    std::string replace_all(std::string_view str, std::string_view pattern, std::string_view replacement);
+
+//    std::vector<std::string_view> tokenize(std::string_view str, std::string_view delim);
 }
 
 #endif

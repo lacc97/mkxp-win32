@@ -15,7 +15,7 @@ BOOL advapi32_GetUserNameA(LPSTR lpBuffer, LPDWORD pcbBuffer) {
     char unBuf[BUFSIZE];
 
     debug() << "Requested username.";
-    
+
     if(getlogin_r(unBuf, BUFSIZE) != 0) {
         error() << "Failed to acquire username.";
         return FALSE;
@@ -24,7 +24,8 @@ BOOL advapi32_GetUserNameA(LPSTR lpBuffer, LPDWORD pcbBuffer) {
     auto unlen = std::strlen(unBuf);
 
     if(unlen >= (*pcbBuffer)) {
-        warn() << "Could not acquire username. Buffer size << " << (*pcbBuffer) << " is too small (required " << unlen << ").";
+        warn() << "Could not acquire username. Buffer size << " << (*pcbBuffer) << " is too small (required " << unlen
+               << ").";
         return FALSE;
     }
 
