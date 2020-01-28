@@ -6,7 +6,6 @@ find_package(PkgConfig REQUIRED)
 find_package(Boost REQUIRED COMPONENTS locale log)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
-find_package(X11 REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
 
@@ -39,10 +38,8 @@ endif()
     target_link_libraries(win32api
         PRIVATE
             Boost::locale
-            fmt::fmt
             PkgConfig::SDL2
-            spdlog::spdlog_header_only
-            X11::X11)
+            spdlog::spdlog_header_only)
 
 add_subdirectory(rgssad/)
 
