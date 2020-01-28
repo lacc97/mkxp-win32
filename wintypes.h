@@ -34,7 +34,7 @@ typedef BOOL*           LPBOOL;
 typedef unsigned char   BYTE;
 
 typedef char            CHAR;
-typedef wchar_t         WCHAR;
+typedef char16_t        WCHAR;
 
 typedef int16_t         SHORT;
 typedef uint16_t        USHORT;

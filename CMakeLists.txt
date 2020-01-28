@@ -3,7 +3,6 @@ project(win32api)
 
 find_package(PkgConfig REQUIRED)
 
-find_package(Boost REQUIRED COMPONENTS locale log)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
@@ -37,7 +36,7 @@ endif()
             ${CMAKE_CURRENT_SOURCE_DIR}/common)
     target_link_libraries(win32api
         PRIVATE
-            Boost::locale
+            unicode
             PkgConfig::SDL2
             spdlog::spdlog_header_only)
 

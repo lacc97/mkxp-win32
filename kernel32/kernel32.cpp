@@ -2,9 +2,7 @@
 
 #include <cstdlib>
 
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/locale.hpp>
+#include <unicode.hpp>
 
 #include "iniconfig.h"
 #include "log.h"
@@ -135,53 +133,35 @@ WIN32_API DWORD kernel32_GetPrivateProfileStringA(LPCSTR lpAppName, LPCSTR lpKey
     return numCharsToCopy;
 }
 
-typedef std::wstring wcstring;
-
-std::string fromCodePageToCharSet(UINT CodePage) {
-    switch((CodeP) CodePage) {
-        case CP_ACP:
-            return "Latin1";
-            break;
-
-        case CP_UTF7:
-            return "UTF-7";
-            break;
-
-        case CP_UTF8:
-            return "UTF-8";
-            break;
-    }
-
-    return "";
-}
-
 WIN32_API int kernel32_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCCH lpMultiByteStr, int cbMultiByte,
                                            LPWSTR lpWideCharStr, int cchWideChar) {
-    std::string charset = fromCodePageToCharSet(CodePage);
+    unicode::UTF16Converter conv{CodePage};
 
-    std::string mbstr;
-
+    std::string_view mbstr;
     if(cbMultiByte == -1)
-        mbstr = std::string(lpMultiByteStr);
+        mbstr = std::string_view{lpMultiByteStr};
     else if(cbMultiByte == 0)
         return FALSE;
     else
-        mbstr = std::string(lpMultiByteStr, cbMultiByte);
+        mbstr = std::string_view{lpMultiByteStr, static_cast<size_t>(cbMultiByte)};
 
-    SPDLOG_DEBUG("Converting {} string to UTF-16", charset);
+    SPDLOG_DEBUG("Converting CP{0} string to UTF-16", CodePage);
 
     int extraNullCharacter = (cbMultiByte == -1 ? 1 : 0);
 
-    wcstring utf16String = boost::locale::conv::to_utf<wcstring::value_type>(mbstr, charset);
+    std::optional<unicode::string> utf16Opt = conv.fromBytes(mbstr);
+    if(!utf16Opt)
+        return FALSE;
+    unicode::string utf16String = std::move(*utf16Opt);
 
     if(cchWideChar == 0)
         return utf16String.length() + extraNullCharacter;
     else if(cchWideChar < utf16String.length() + extraNullCharacter) {
-        spdlog::error("Failed to convert {} string because buffer is too small", charset);
+        spdlog::error("Failed to convert CP{0} string because buffer is too small", CodePage);
         return FALSE;
     }
 
-    std::memcpy(lpWideCharStr, utf16String.c_str(), sizeof(wcstring::value_type) * utf16String.length());
+    std::memcpy(lpWideCharStr, utf16String.c_str(), sizeof(unicode::string::value_type) * utf16String.length());
 
     if(cbMultiByte == -1)
         lpWideCharStr[utf16String.length()] = 0;
@@ -198,27 +178,29 @@ WIN32_API void kernel32_RtlZeroMemory(PVOID pDestination, SIZE_T nSize) {
 WIN32_API int kernel32_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int cchWideChar,
                                            LPSTR lpMultiByteStr, int cbMultiByte, LPCCH lpDefaultChar,
                                            LPBOOL lpUsedDefaultChar) {
-    std::string charset = fromCodePageToCharSet(CodePage);
+    unicode::UTF16Converter conv{CodePage};
 
-    wcstring wcstr;
-
+    unicode::string_view wcstr;
     if(cchWideChar == -1)
-        wcstr = wcstring(lpWideCharStr);
+        wcstr = unicode::string_view{lpWideCharStr};
     else if(cchWideChar == 0)
         return FALSE;
     else
-        wcstr = wcstring(lpWideCharStr, cchWideChar);
+        wcstr = unicode::string_view{lpWideCharStr, static_cast<size_t>(cchWideChar)};
 
-    SPDLOG_DEBUG("Converting UTF-16 string to {}", charset);
+    SPDLOG_DEBUG("Converting UTF-16 string to CP{0}", CodePage);
 
     int extraNullCharacter = (cchWideChar == -1 ? 1 : 0);
 
-    std::string mbString = boost::locale::conv::from_utf<wcstring::value_type>(wcstr, charset);
+    std::optional<std::string> mbStringOpt = conv.toBytes(wcstr);
+    if(!mbStringOpt)
+        return FALSE;
+    std::string mbString = std::move(*mbStringOpt);
 
     if(cbMultiByte == 0)
         return mbString.length() + extraNullCharacter;
     else if(cchWideChar < mbString.length() + extraNullCharacter) {
-        spdlog::error("Failed to convert string to {} because buffer is too small", charset);
+        spdlog::error("Failed to convert string to CP{0} because buffer is too small", CodePage);
         return FALSE;
     }
 
