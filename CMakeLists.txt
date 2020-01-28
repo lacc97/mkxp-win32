@@ -51,5 +51,6 @@ add_subdirectory(gdi32/)
 add_subdirectory(kernel32/)
 add_subdirectory(user32/)
 
+add_subdirectory(extra/camouse)
 add_subdirectory(extra/tktk_bitmap)
 add_subdirectory(extra/wfcrypt)
