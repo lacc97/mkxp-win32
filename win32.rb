@@ -32,7 +32,7 @@ module Win32API
     ffi_lib FFI::CURRENT_PROCESS
 
     def new(dllName, fnName, argList, retType)
-        symName = dllName.downcase + "_" + fnName
+        symName = dllName.downcase.split("/").last + "_" + fnName
         symSym = symName.to_sym
         
         param_transform = lambda do |arg|
