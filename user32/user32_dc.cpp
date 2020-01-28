@@ -1,17 +1,17 @@
 #include "user32.h"
 
-HDC user32_GetDC(HWND hWnd) {
+WIN32_API HDC user32_GetDC(HWND hWnd) {
     if(!hWnd)
-        return NULL;
+        return toHANDLE(NULL);
 
     // TODO
-    return NULL;
+    return toHANDLE(NULL);
 }
 
-int user32_FillRect(HDC hDC, const RECT* lprc, HBRUSH hbr) {
+WIN32_API int user32_FillRect(HDC hDC, const RECT* lprc, HBRUSH hbr) {
     return TRUE;
 }
 
-int user32_ReleaseDC(HWND hWnd, HDC hDC) {
+WIN32_API int user32_ReleaseDC(HWND hWnd, HDC hDC) {
     return TRUE;
 }

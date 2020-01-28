@@ -111,23 +111,23 @@ namespace fmt {
     };
 }
 
-HWND user32_CreateWindowEx(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int X, int Y,
+WIN32_API HWND user32_CreateWindowEx(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int X, int Y,
                            int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) {
     return user32_CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent,
                                   hMenu, hInstance, lpParam);
 }
 
-HWND user32_CreateWindowExA(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y,
+WIN32_API HWND user32_CreateWindowExA(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y,
                             int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance,
                             LPVOID lpParam) {
     return toHWND(NULL);
 }
 
-SHORT user32_GetAsyncKeyState(WORD vKey) {
+WIN32_API SHORT user32_GetAsyncKeyState(WORD vKey) {
     return user32_GetKeyState(vKey);
 }
 
-BOOL user32_GetClientRect(HWND hWnd, PRECT lpRect) {
+WIN32_API BOOL user32_GetClientRect(HWND hWnd, PRECT lpRect) {
     SPDLOG_TRACE("user32::GetClientRect(hWnd={}, lpRect={})", (void*) (hWnd), (void*) (lpRect));
 
     if(!hWnd) {
@@ -146,7 +146,7 @@ BOOL user32_GetClientRect(HWND hWnd, PRECT lpRect) {
     return TRUE;
 }
 
-BOOL user32_GetCursorPos(LPPOINT lpPoint) {
+WIN32_API BOOL user32_GetCursorPos(LPPOINT lpPoint) {
     SPDLOG_TRACE("user32::GetCursorPos(lpPoint={})", (void*) (lpPoint));
 
     SDL_GetGlobalMouseState(&lpPoint->x, &lpPoint->y);
@@ -155,12 +155,12 @@ BOOL user32_GetCursorPos(LPPOINT lpPoint) {
     return TRUE;
 }
 
-HWND user32_GetDesktopWindow() {
+WIN32_API HWND user32_GetDesktopWindow() {
     SPDLOG_TRACE("user32::GetDesktopWindow()");
     return toHWND(NULL);
 }
 
-SHORT user32_GetKeyState(WORD vKey) {
+WIN32_API SHORT user32_GetKeyState(WORD vKey) {
     switch(vKey) {
         case VK_LBUTTON:
         case VK_RBUTTON:
@@ -206,7 +206,7 @@ SHORT user32_GetKeyState(WORD vKey) {
     }
 }
 
-int user32_GetSystemMetrics(int nIndex) {
+WIN32_API int user32_GetSystemMetrics(int nIndex) {
     SPDLOG_TRACE("user32::GetSystemMetrics(nIndex={})", nIndex);
 
     switch(nIndex) {
@@ -229,7 +229,7 @@ int user32_GetSystemMetrics(int nIndex) {
     return 0;
 }
 
-BOOL user32_GetWindowRect(HWND hWnd, PRECT lpRect) {
+WIN32_API BOOL user32_GetWindowRect(HWND hWnd, PRECT lpRect) {
     SPDLOG_TRACE("user32::GetWindowRect(hWnd={}, lpRect={})", (void*) (hWnd), (void*) (lpRect));
 
     if(!hWnd) {
@@ -249,11 +249,11 @@ BOOL user32_GetWindowRect(HWND hWnd, PRECT lpRect) {
     return TRUE;
 }
 
-LONG user32_GetWindowLong(HWND hWnd, int nIndex) {
+WIN32_API LONG user32_GetWindowLong(HWND hWnd, int nIndex) {
     return user32_GetWindowLongA(hWnd, nIndex);
 }
 
-LONG user32_GetWindowLongA(HWND hWnd, int nIndex) {
+WIN32_API LONG user32_GetWindowLongA(HWND hWnd, int nIndex) {
     constexpr int GWL_STYLE = -16;
     constexpr int GWL_USERDATA = -21;
 
@@ -283,11 +283,11 @@ LONG user32_GetWindowLongA(HWND hWnd, int nIndex) {
     }
 }
 
-HWND user32_FindWindow(LPCSTR lpClassName, LPCSTR lpWindowName) {
+WIN32_API HWND user32_FindWindow(LPCSTR lpClassName, LPCSTR lpWindowName) {
     return user32_FindWindowA(lpClassName, lpWindowName);
 }
 
-HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
+WIN32_API HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
     if(lpWindowName) {
         SPDLOG_TRACE("user32::FindWindowA(lpClassName=\"{}\", lpWindowName=\"{}\")", lpClassName, lpWindowName);
     } else {
@@ -302,11 +302,11 @@ HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
     return toHWND(getMkxpWindow());
 }
 
-int user32_MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType) {
+WIN32_API int user32_MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType) {
     return user32_MessageBoxA(hWnd, lpText, lpCaption, uType);
 }
 
-int user32_MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
+WIN32_API int user32_MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
     constexpr UINT MB_OK = 0x00000000;
     constexpr UINT MB_OKCANCEL = 0x00000001;
     constexpr UINT MB_ABORTRETRYIGNORE = 0x00000002;
@@ -447,7 +447,7 @@ int user32_MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
     return retVal;
 }
 
-BOOL user32_MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint) {
+WIN32_API BOOL user32_MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint) {
     SPDLOG_TRACE("user32::MoveWindow(hWnd={}, X={}, Y={}, nWidth={}, nHeight={}, bRepaint={})", (void*) (hWnd), X, Y,
                  nWidth, nHeight, bool(bRepaint));
 
@@ -467,7 +467,7 @@ BOOL user32_MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bR
     return TRUE;
 }
 
-BOOL user32_ScreenToClient(HWND hWnd, LPPOINT lpPoint) {
+WIN32_API BOOL user32_ScreenToClient(HWND hWnd, LPPOINT lpPoint) {
     SPDLOG_TRACE("user32::ScreenToClient(hWnd={}, *lpPoint={})", hWnd, *lpPoint);
 
     if(!hWnd) {
@@ -488,7 +488,7 @@ BOOL user32_ScreenToClient(HWND hWnd, LPPOINT lpPoint) {
     return TRUE;
 }
 
-UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
+WIN32_API UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
     constexpr DWORD INPUT_MOUSE = 0;
     constexpr DWORD INPUT_KEYBOARD = 1;
 //     constexpr DWORD INPUT_HARDWARE  = 2;
@@ -568,19 +568,19 @@ UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
     return count;
 }
 
-LONG user32_SetWindowLong(HWND hWnd, int nIndex, LONG dwNewLong) {
+WIN32_API LONG user32_SetWindowLong(HWND hWnd, int nIndex, LONG dwNewLong) {
     return user32_SetWindowLongA(hWnd, nIndex, dwNewLong);
 }
 
-LONG user32_SetWindowLongA(HWND hWnd, int nIndex, LONG dwNewLong) {
+WIN32_API LONG user32_SetWindowLongA(HWND hWnd, int nIndex, LONG dwNewLong) {
     return user32_SetWindowLongPtrA(hWnd, nIndex, dwNewLong);
 }
 
-LONG_PTR user32_SetWindowLongPtr(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
+WIN32_API LONG_PTR user32_SetWindowLongPtr(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
     return user32_SetWindowLongPtrA(hWnd, nIndex, dwNewLong);
 }
 
-LONG_PTR user32_SetWindowLongPtrA(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
+WIN32_API LONG_PTR user32_SetWindowLongPtrA(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
     constexpr int GWL_STYLE = -16;
     constexpr int GWL_USERDATA = -21;
 
@@ -607,7 +607,7 @@ LONG_PTR user32_SetWindowLongPtrA(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
     }
 }
 
-BOOL user32_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags) {
+WIN32_API BOOL user32_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags) {
     constexpr UINT SWP_NOSIZE = 0x0001;
     constexpr UINT SWP_NOMOVE = 0x0002;
     constexpr UINT SWP_NOZORDER = 0x0004;
@@ -675,7 +675,7 @@ BOOL user32_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, 
     return TRUE;
 }
 
-int user32_ShowCursor(BOOL bShow) {
+WIN32_API int user32_ShowCursor(BOOL bShow) {
     SPDLOG_TRACE("user32::ShowCursor(bShow={})", bool(bShow));
 
     int cState = SDL_ShowCursor(bShow == TRUE ? SDL_ENABLE : SDL_DISABLE);
@@ -683,7 +683,7 @@ int user32_ShowCursor(BOOL bShow) {
     return (cState == SDL_ENABLE ? 1 : -1);
 }
 
-BOOL user32_ShowWindow(HWND hWnd, int nCmdShow) {
+WIN32_API BOOL user32_ShowWindow(HWND hWnd, int nCmdShow) {
     constexpr int SW_FORCEMINIMIZE = 11;
     constexpr int SW_HIDE = 0;
     constexpr int SW_MAXIMIZE = 3;
@@ -738,11 +738,11 @@ BOOL user32_ShowWindow(HWND hWnd, int nCmdShow) {
     return wasVisible;
 }
 
-BOOL user32_SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
+WIN32_API BOOL user32_SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
     return user32_SystemParametersInfoA(uiAction, uiParam, pvParam, fWinIni);
 }
 
-BOOL user32_SystemParametersInfoA(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
+WIN32_API BOOL user32_SystemParametersInfoA(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
     SPDLOG_TRACE("user32::SystemParametersInfoA(uiAction={}, uiParam={}, pvParam={}, fWinIni={})", uiAction, uiParam,
                  pvParam, fWinIni);
 
@@ -771,7 +771,7 @@ BOOL user32_SystemParametersInfoA(UINT uiAction, UINT uiParam, PVOID pvParam, UI
     return FALSE;
 }
 
-BOOL user32_UpdateWindow(HWND hWnd) {
+WIN32_API BOOL user32_UpdateWindow(HWND hWnd) {
     SPDLOG_TRACE("user32::UpdateWindow(hWnd={})", (void*) (hWnd));
 
     if(!hWnd) {
