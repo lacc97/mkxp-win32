@@ -39,6 +39,7 @@ endif()
     target_link_libraries(win32api
         PRIVATE
             Boost::locale
+            fmt::fmt
             PkgConfig::SDL2
             spdlog::spdlog_header_only
             X11::X11)
