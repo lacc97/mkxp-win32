@@ -11,4 +11,4 @@ add_executable(rgssad ${CMAKE_CURRENT_SOURCE_DIR}/rgssad.cpp)
             ${CMAKE_CURRENT_SOURCE_DIR}/..)
     target_link_libraries(rgssad
         PRIVATE
-            Boost::log)
+            fmt::fmt spdlog::spdlog)
