@@ -4,6 +4,7 @@ project(win32api)
 find_package(PkgConfig REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS locale log)
+find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(X11 REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
@@ -39,7 +40,7 @@ endif()
         PRIVATE
             Boost::locale
             PkgConfig::SDL2
-            spdlog::spdlog
+            spdlog::spdlog_header_only
             X11::X11)
 
 add_subdirectory(rgssad/)
@@ -51,4 +52,4 @@ add_subdirectory(kernel32/)
 add_subdirectory(user32/)
 
 add_subdirectory(extra/tktk_bitmap)
-#add_subdirectory(extra/wfcrypt)
+add_subdirectory(extra/wfcrypt)
