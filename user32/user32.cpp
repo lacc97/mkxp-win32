@@ -149,7 +149,7 @@ WIN32_API BOOL user32_GetClientRect(HWND hWnd, PRECT lpRect) {
 WIN32_API BOOL user32_GetCursorPos(LPPOINT lpPoint) {
     SPDLOG_TRACE("user32::GetCursorPos(lpPoint={})", (void*) (lpPoint));
 
-    SDL_GetGlobalMouseState(&lpPoint->x, &lpPoint->y);
+    SDL_GetMouseState(&lpPoint->x, &lpPoint->y);
 
     SPDLOG_TRACE(" <- user32::GetCursorPos(*lpPoint={})", *lpPoint);
     return TRUE;
