@@ -44,7 +44,7 @@ namespace {
 }
 
 template <>
-HANDLE newHANDLE(void* ptr) {
+HANDLE newHANDLE<HANDLE>(void* ptr) {
     auto it = std::find(s_HandledPtrs.begin(), s_HandledPtrs.end(), ptr);
 
     if(it == s_HandledPtrs.end()) {
@@ -56,6 +56,6 @@ HANDLE newHANDLE(void* ptr) {
 }
 
 template <>
-void* fromHANDLE(HANDLE handle) {
+void* fromHANDLE<HANDLE>(HANDLE handle) {
     return s_HandledPtrs[handle];
 }
