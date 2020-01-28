@@ -23,21 +23,21 @@ namespace {
     }
 
     enum WindowStyles : uint32_t {
-        WS_BORDER           = 0x00800000,
-        WS_CAPTION          = 0x00C00000,
-        WS_ICONIC           = 0x20000000,
-        WS_MAXIMIZE         = 0x01000000,
-        WS_MAXIMIZEBOX      = 0x00010000,
-        WS_MINIMIZE         = 0x20000000,
-        WS_MINIMIZEBOX      = 0x00020000,
-        WS_OVERLAPPED       = 0x00000000,
-        WS_SIZEBOX          = 0x00040000,
-        WS_SYSMENU          = 0x00080000,
-        WS_THICKFRAME       = 0x00040000,
-        WS_TILED            = 0x00000000,
-        WS_VISIBLE          = 0x10000000,
+        WS_BORDER = 0x00800000,
+        WS_CAPTION = 0x00C00000,
+        WS_ICONIC = 0x20000000,
+        WS_MAXIMIZE = 0x01000000,
+        WS_MAXIMIZEBOX = 0x00010000,
+        WS_MINIMIZE = 0x20000000,
+        WS_MINIMIZEBOX = 0x00020000,
+        WS_OVERLAPPED = 0x00000000,
+        WS_SIZEBOX = 0x00040000,
+        WS_SYSMENU = 0x00080000,
+        WS_THICKFRAME = 0x00040000,
+        WS_TILED = 0x00000000,
+        WS_VISIBLE = 0x10000000,
         WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-        WS_TILEDWINDOW      = WS_TILED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+        WS_TILEDWINDOW = WS_TILED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
     };
 
     LONG_PTR getStyle(SDL_Window* win) {
@@ -83,6 +83,34 @@ namespace {
     }
 }
 
+namespace fmt {
+    template<>
+    struct formatter<POINT> {
+        template<typename ParseContext>
+        constexpr auto parse(ParseContext& ctx) {
+            return ctx.begin();
+        }
+
+        template<typename FormatContext>
+        auto format(const POINT& p, FormatContext& ctx) {
+            return format_to(ctx.out(), "({}, {})", p.x, p.y);
+        }
+    };
+
+    template<>
+    struct formatter<RECT> {
+        template<typename ParseContext>
+        constexpr auto parse(ParseContext& ctx) {
+            return ctx.begin();
+        }
+
+        template<typename FormatContext>
+        auto format(const RECT& p, FormatContext& ctx) {
+            return format_to(ctx.out(), "[({}, {}) -> ({}, {})]", p.left, p.top, p.right, p.bottom);
+        }
+    };
+}
+
 HWND user32_CreateWindowEx(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int X, int Y,
                            int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) {
     return user32_CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent,
@@ -100,10 +128,10 @@ SHORT user32_GetAsyncKeyState(WORD vKey) {
 }
 
 BOOL user32_GetClientRect(HWND hWnd, PRECT lpRect) {
-    debug() << "Requested size of window " << hWnd << ".";
+    SPDLOG_TRACE("user32::GetClientRect(hWnd={}, lpRect={})", (void*) (hWnd), (void*) (lpRect));
 
     if(!hWnd) {
-        warn() << "Ignoring null window";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -114,19 +142,21 @@ BOOL user32_GetClientRect(HWND hWnd, PRECT lpRect) {
 
     SDL_GL_GetDrawableSize(win, &lpRect->right, &lpRect->bottom);
 
-    debug() << "Window " << hWnd << " has size " << lpRect->right << "x" << lpRect->bottom << ".";
-
+    SPDLOG_TRACE(" <- user32::GetClientRect(hWnd={}, *lpRect={})", (void*) (hWnd), *lpRect);
     return TRUE;
 }
 
 BOOL user32_GetCursorPos(LPPOINT lpPoint) {
+    SPDLOG_TRACE("user32::GetCursorPos(lpPoint={})", (void*) (lpPoint));
+
     SDL_GetGlobalMouseState(&lpPoint->x, &lpPoint->y);
 
+    SPDLOG_TRACE(" <- user32::GetCursorPos(*lpPoint={})", *lpPoint);
     return TRUE;
 }
 
 HWND user32_GetDesktopWindow() {
-    trace() << "Requested desktop window.";
+    SPDLOG_TRACE("user32::GetDesktopWindow()");
     return toHWND(NULL);
 }
 
@@ -177,7 +207,7 @@ SHORT user32_GetKeyState(WORD vKey) {
 }
 
 int user32_GetSystemMetrics(int nIndex) {
-    debug() << "Requested system metric " << nIndex << ".";
+    SPDLOG_TRACE("user32::GetSystemMetrics(nIndex={})", nIndex);
 
     switch(nIndex) {
         case 0: {     // CXSCREEN
@@ -200,10 +230,10 @@ int user32_GetSystemMetrics(int nIndex) {
 }
 
 BOOL user32_GetWindowRect(HWND hWnd, PRECT lpRect) {
-    debug() << "Requested position of window " << hWnd << " relative to screen.";
+    SPDLOG_TRACE("user32::GetWindowRect(hWnd={}, lpRect={})", (void*) (hWnd), (void*) (lpRect));
 
     if(!hWnd) {
-        warn() << "Ignoring null window";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -215,9 +245,7 @@ BOOL user32_GetWindowRect(HWND hWnd, PRECT lpRect) {
     lpRect->right += lpRect->left;
     lpRect->bottom += lpRect->top;
 
-    debug() << "Window " << hWnd << " has position (" << lpRect->left << ", " << lpRect->top << ") -- ("
-            << lpRect->right << ", " << lpRect->bottom << ").";
-
+    SPDLOG_TRACE(" <- user32::GetWindowRect(hWnd={}, *lpRect={})", (void*) (hWnd), *lpRect);
     return TRUE;
 }
 
@@ -226,13 +254,13 @@ LONG user32_GetWindowLong(HWND hWnd, int nIndex) {
 }
 
 LONG user32_GetWindowLongA(HWND hWnd, int nIndex) {
-    constexpr int GWL_STYLE     = -16;
-    constexpr int GWL_USERDATA  = -21;
+    constexpr int GWL_STYLE = -16;
+    constexpr int GWL_USERDATA = -21;
 
-    debug() << "requested parameter " << nIndex << " of window " << hWnd << ".";
+    SPDLOG_TRACE("user32::GetWindowLongA(hWnd={}, nIndex={})", (void*)(hWnd), nIndex);
 
     if(!hWnd) {
-        warn() << "passed a null window. Returning.";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -241,18 +269,16 @@ LONG user32_GetWindowLongA(HWND hWnd, int nIndex) {
     switch(nIndex) {
         case GWL_STYLE: {
             auto style = getStyle(win);
-            debug() << "returned " << style << " as window style for window " << hWnd << ".";
             return style;
         }
 
         case GWL_USERDATA: {
             auto userData = reinterpret_cast<LONG_PTR>(SDL_GetWindowData(win, "WIN32API_USER_WINDOW_DATA"));
-            debug() << "returned " << userData << " as user data for window " << hWnd << ".";
             return userData;
         }
 
         default:
-            warn() << "ignored request for parameter " << nIndex << " of window " << hWnd << ".";
+            spdlog::warn("Ignored request for parameter {} of window {}", nIndex, (void*)(fromHANDLE(hWnd)));
             return FALSE;
     }
 }
@@ -263,13 +289,13 @@ HWND user32_FindWindow(LPCSTR lpClassName, LPCSTR lpWindowName) {
 
 HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
     if(lpWindowName) {
-        debug() << "requested window of class '" << lpClassName << "' and name '" << lpWindowName << "'.";
+        SPDLOG_TRACE("user32::FindWindowA(lpClassName=\"{}\", lpWindowName=\"{}\")", lpClassName, lpWindowName);
     } else {
-        debug() << "requested window of class '" << lpClassName << "'.";
+        SPDLOG_TRACE("user32::FindWindowA(lpClassName=\"{}\", lpWindowName=0x0", lpClassName);
     }
 
     if(std::strcmp(lpClassName, "RGSS Player") != 0) {
-        warn() << "window class is not 'RGSS Player'. Returning NULL.";
+        spdlog::warn("Ignoring query because window class is not 'RGSS Player'");
         return toHWND(NULL);
     }
 
@@ -299,7 +325,8 @@ int user32_MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
     constexpr int IDTRYAGAIN = 10;
     constexpr int IDCONTINUE = 11;
 
-    debug() << "showing message box with title '" << lpCaption << "' and text '" << lpText << "'";
+    SPDLOG_TRACE("user32::MessageBoxA(hWnd={}, lpText=\"{}\", lpCaption=\"{}\", uType={:x})", (void*) (hWnd), lpText,
+                 lpCaption, uType);
 
     UINT dialogButtonsFlag = (uType & 0x0000000f);
     UINT dialogTypeFlag = (uType & 0x000000f0);
@@ -415,16 +442,17 @@ int user32_MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType) {
     int retVal;
 
     if(SDL_ShowMessageBox(&mbData, &retVal) != 0)
-        error() << "SDL_ShowMessageBox failed: " << SDL_GetError();
+        spdlog::error("SDL_ShowMessageBox failed: {}", SDL_GetError());
 
     return retVal;
 }
 
 BOOL user32_MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint) {
-    debug() << "moving window " << hWnd << " to position (" << X << ", " << Y << ") and size (" << nWidth << ", " << nHeight << ")" << (bRepaint ? ", with repaint." : ".");
+    SPDLOG_TRACE("user32::MoveWindow(hWnd={}, X={}, Y={}, nWidth={}, nHeight={}, bRepaint={})", (void*) (hWnd), X, Y,
+                 nWidth, nHeight, bool(bRepaint));
 
     if(!hWnd) {
-        warn() << "ignoring null window";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -440,10 +468,10 @@ BOOL user32_MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bR
 }
 
 BOOL user32_ScreenToClient(HWND hWnd, LPPOINT lpPoint) {
-    debug() << "Converting screen coords (" << lpPoint->x << "," << lpPoint->y << ") to client " << hWnd << " coords";
+    SPDLOG_TRACE("user32::ScreenToClient(hWnd={}, *lpPoint={})", hWnd, *lpPoint);
 
     if(!hWnd) {
-        warn() << "Ignoring null window";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -456,9 +484,7 @@ BOOL user32_ScreenToClient(HWND hWnd, LPPOINT lpPoint) {
     lpPoint->x -= x;
     lpPoint->y -= y;
 
-    debug() << "(" << (lpPoint->x + x) << "," << (lpPoint->y + y) << ") -> " << "(" << lpPoint->x << "," << lpPoint->y
-            << ") in client coords";
-
+    SPDLOG_TRACE(" <- user32::ScreenToClient(hWnd={}, *lpPoint={})", hWnd, *lpPoint);
     return TRUE;
 }
 
@@ -467,10 +493,10 @@ UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
     constexpr DWORD INPUT_KEYBOARD = 1;
 //     constexpr DWORD INPUT_HARDWARE  = 2;
 
-    debug() << "Sending " << cInputs << "synthesized input events.";
+    SPDLOG_TRACE("user32::SendInput(cInputs={}, pInputs={}, cbSize={})", cInputs, (void*) (pInputs), cbSize);
 
     if(cbSize != sizeof(INPUT)) {
-        error() << "Size of INPUT type does not match (" << sizeof(INPUT) << " != " << cbSize << ").";
+        spdlog::error("Size of INPUT type does not match ({} != {})", sizeof(INPUT), cbSize);
         return 0;
     }
 
@@ -490,8 +516,7 @@ UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
 //
 //
 //
-                warn() << "Skipping MOUSEINPUT event.";
-
+                spdlog::warn("Skipping MOUSEINPUT event");
                 break;
             }
 
@@ -502,12 +527,12 @@ UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
                 constexpr DWORD KEYEVENTF_UNICODE = 0x0004;
 
                 if((winEv.DUMMYUNIONNAME.ki.dwFlags & KEYEVENTF_UNICODE) != 0) {
-                    warn() << "Skipping unicode KEYBDINPUT event.";
+                    spdlog::warn("Skipping unicode KEYBDINPUT event");
                     break;
                 }
 
                 if((winEv.DUMMYUNIONNAME.ki.dwFlags & KEYEVENTF_SCANCODE) != 0) {
-                    warn() << "Skipping scan code KEYBDINPUT event.";
+                    spdlog::warn("Skipping scan code KEYBDINPUT event");
                     break;
                 }
 
@@ -535,7 +560,7 @@ UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
             }
 
             default:
-                warn() << "Skipping event of type " << winEv.type;
+                spdlog::warn("Skipping event of type {}", winEv.type);
                 continue;
         }
     }
@@ -556,13 +581,13 @@ LONG_PTR user32_SetWindowLongPtr(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
 }
 
 LONG_PTR user32_SetWindowLongPtrA(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
-    constexpr int GWL_STYLE     = -16;
-    constexpr int GWL_USERDATA  = -21;
+    constexpr int GWL_STYLE = -16;
+    constexpr int GWL_USERDATA = -21;
 
-    debug() << "Requested to change parameter " << nIndex << " of window " << hWnd << " to value " << std::hex << dwNewLong << ".";
+    SPDLOG_TRACE("user32::SetWindowLongPtrA(hWnd={}, nIndex={}, dwNewLong={})", (void*) (hWnd), nIndex, dwNewLong);
 
     if(!hWnd) {
-        warn() << "Ignoring null window";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -573,10 +598,11 @@ LONG_PTR user32_SetWindowLongPtrA(HWND hWnd, int nIndex, LONG_PTR dwNewLong) {
             return changeStyle(win, dwNewLong);
 
         case GWL_USERDATA:
-            return reinterpret_cast<LONG_PTR>(SDL_SetWindowData(win, "WIN32API_USER_WINDOW_DATA", reinterpret_cast<void*>(dwNewLong)));
+            return reinterpret_cast<LONG_PTR>(SDL_SetWindowData(win, "WIN32API_USER_WINDOW_DATA",
+                                                                reinterpret_cast<void*>(dwNewLong)));
 
         default:
-            warn() << "Ignored window parameter " << nIndex << " change request of window " << hWnd << ".";
+            spdlog::warn("Ignoring window parameter {} change request for window {}", nIndex, (void*) fromHANDLE(hWnd));
             return FALSE;
     }
 }
@@ -589,10 +615,11 @@ BOOL user32_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, 
     constexpr UINT SWP_SHOWWINDOW = 0x0040;
     constexpr UINT SWP_HIDEWINDOW = 0x0080;
 
-    debug() << "Modifying position of window " << hWnd << ".";
+    SPDLOG_TRACE("user32::SetWindowPos(hWnd={}, hWndInsertAfter={}, X={}, Y={}, cx={}, cy={}, uFlags={:x})",
+                 (void*) (hWnd), (void*) (hWndInsertAfter), X, Y, cx, cy, uFlags);
 
     if(!hWnd) {
-        warn() << "Ignoring null window";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -601,13 +628,13 @@ BOOL user32_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, 
     if((uFlags & SWP_NOSIZE) == 0) {
         SDL_SetWindowSize(win, cx, cy);
 
-        trace() << "New size of window " << hWnd << " will be " << cx << "x" << cy << ".";
+        SPDLOG_DEBUG("Changed size of window {} to {}x{}", (void*) (hWnd), cx, cy);
     }
 
     if((uFlags & SWP_NOMOVE) == 0) {
         SDL_SetWindowPosition(win, X, Y);
 
-        trace() << "New position of window " << hWnd << " will be (" << (X) << ", " << (Y) << ").";
+        SPDLOG_DEBUG("Changed position of window {} to {}x{}", (void*) (hWnd), X, Y);
     }
 
     if((uFlags & SWP_NOZORDER) == 0) {
@@ -649,6 +676,8 @@ BOOL user32_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, 
 }
 
 int user32_ShowCursor(BOOL bShow) {
+    SPDLOG_TRACE("user32::ShowCursor(bShow={})", bool(bShow));
+
     int cState = SDL_ShowCursor(bShow == TRUE ? SDL_ENABLE : SDL_DISABLE);
 
     return (cState == SDL_ENABLE ? 1 : -1);
@@ -668,10 +697,10 @@ BOOL user32_ShowWindow(HWND hWnd, int nCmdShow) {
     constexpr int SW_SHOWNOACTIVATE = 4;
     constexpr int SW_SHOWNORMAL = 1;
 
-    debug() << "Showing window " << hWnd << " using method " << nCmdShow << ".";
+    SPDLOG_TRACE("user32::ShowWindow(hWnd={}, nCmdShow={:x})", (void*)(hWnd), nCmdShow);
 
     if(!hWnd) {
-        warn() << "Passed a null window. Returning.";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
@@ -705,7 +734,7 @@ BOOL user32_ShowWindow(HWND hWnd, int nCmdShow) {
             break;
     }
 
-    warn() << "Ignoring show request.";
+    spdlog::warn("Ignoring show request");
     return wasVisible;
 }
 
@@ -714,14 +743,15 @@ BOOL user32_SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UIN
 }
 
 BOOL user32_SystemParametersInfoA(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
+    SPDLOG_TRACE("user32::SystemParametersInfoA(uiAction={}, uiParam={}, pvParam={}, fWinIni={})", uiAction, uiParam,
+                 pvParam, fWinIni);
+
     switch(uiAction) {
         case 0x0030: {  // SPI_GETWORKAREA
-            debug() << "Requested parameter SPI_GETWORKAREA";
-
             SDL_Rect rect;
 
             if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(getMkxpWindow()), &rect) != 0) {
-                error() << "Failed to obtain size of desktop window.";
+                spdlog::error("Failed to obtain desktop size");
                 return FALSE;
             }
 
@@ -731,21 +761,21 @@ BOOL user32_SystemParametersInfoA(UINT uiAction, UINT uiParam, PVOID pvParam, UI
             pRect->right = rect.w;
             pRect->bottom = rect.h;
 
-            debug() << "Desktop window has size " << rect.w << "x" << rect.h << ".";
-
+            SPDLOG_TRACE(" <- user32::SystemParametersInfoA(uiAction={}, uiParam={}, *pvParam:RECT={}, fWinIni={})",
+                         uiAction, uiParam, *pRect, fWinIni);
             return TRUE;
         }
     }
 
-    warn() << "Ignored system parameter " << uiAction << " request.";
+    spdlog::warn("Ignored system parameter {} request", uiAction);
     return FALSE;
 }
 
 BOOL user32_UpdateWindow(HWND hWnd) {
-    debug() << "Updating window " << hWnd << ".";
+    SPDLOG_TRACE("user32::UpdateWindow(hWnd={})", (void*) (hWnd));
 
     if(!hWnd) {
-        warn() << "Passed a null window. Returning.";
+        spdlog::warn("Ignoring null window");
         return FALSE;
     }
 
