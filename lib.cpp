@@ -6,6 +6,8 @@
 #include <vector>
 
 #include "log.h"
+#include "wintypes.h"
+
 
 //#include <map>
 //
@@ -58,4 +60,13 @@ HANDLE newHANDLE<HANDLE>(void* ptr) {
 template <>
 void* fromHANDLE<HANDLE>(HANDLE handle) {
     return s_HandledPtrs[handle];
+}
+
+template <>
+HANDLE toHANDLE<HANDLE>(void* ptr) {
+  auto it = std::find(s_HandledPtrs.begin(), s_HandledPtrs.end(), ptr);
+  if(it != s_HandledPtrs.end())
+    return std::distance(s_HandledPtrs.begin(), it);
+  else
+    return 0;
 }

@@ -1,7 +1,7 @@
 #include "gdi32.h"
 
 HBRUSH gdi32_CreateSolidBrush(COLORREF color) {
-    return NULL;
+    return toHANDLE<HBRUSH>(NULL);
 }
 
 BOOL gdi32_DeleteObject(HGDIOBJ ho) {

@@ -142,7 +142,8 @@ template <typename HANDLEType>
 void* fromHANDLE(HANDLEType handle);
 
 // probably unnecessary
-HANDLE toHANDLE(void* ptr);
+template <typename HANDLEType>
+HANDLEType toHANDLE(void* ptr);
 
 
 #endif

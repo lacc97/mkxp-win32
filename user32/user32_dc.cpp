@@ -2,10 +2,10 @@
 
 WIN32_API HDC user32_GetDC(HWND hWnd) {
     if(!hWnd)
-        return toHANDLE(NULL);
+        return toHANDLE<HWND>(NULL);
 
     // TODO
-    return toHANDLE(NULL);
+    return toHANDLE<HWND>(NULL);
 }
 
 WIN32_API int user32_FillRect(HDC hDC, const RECT* lprc, HBRUSH hbr) {
