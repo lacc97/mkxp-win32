@@ -568,6 +568,11 @@ WIN32_API UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
     return count;
 }
 
+BOOL user32_SetCursorPos(int X, int Y) {
+  SDL_WarpMouseInWindow(getMkxpWindow(), X, Y);
+  return TRUE;
+}
+
 WIN32_API LONG user32_SetWindowLong(HWND hWnd, int nIndex, LONG dwNewLong) {
     return user32_SetWindowLongA(hWnd, nIndex, dwNewLong);
 }
