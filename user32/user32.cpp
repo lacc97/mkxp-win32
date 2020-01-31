@@ -111,6 +111,27 @@ namespace fmt {
     };
 }
 
+WIN32_API BOOL user32_ClientToScreen(HWND hWnd, LPPOINT lpPoint) {
+  SPDLOG_TRACE("user32::ClientToScreen(hWnd={}, *lpPoint={})", hWnd, *lpPoint);
+
+  if(!hWnd) {
+    spdlog::warn("Ignoring null window");
+    return FALSE;
+  }
+
+  auto win = fromHWND(hWnd);
+
+  int x{0}, y{0};
+
+  SDL_GetWindowPosition(win, &x, &y);
+
+  lpPoint->x += x;
+  lpPoint->y += y;
+
+  SPDLOG_TRACE(" <- user32::ClientToScreen(hWnd={}, *lpPoint={})", hWnd, *lpPoint);
+  return TRUE;
+}
+
 WIN32_API HWND user32_CreateWindowEx(DWORD dwExStyle, LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int X, int Y,
                            int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) {
     return user32_CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent,

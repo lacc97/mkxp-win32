@@ -7,6 +7,11 @@
 extern "C" {
 #endif
 
+WIN32_API BOOL user32_ClientToScreen(
+        HWND hWnd,
+        LPPOINT lpPoint
+);
+
 WIN32_API HWND user32_CreateWindowEx(
         DWORD dwExStyle,
         LPCTSTR lpClassName,
