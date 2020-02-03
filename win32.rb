@@ -51,8 +51,8 @@ module Win32API
         end
         
         
-        if argList.is_a? String # TODO remove spaces from string
-            argList = argList.chars
+        if argList.is_a? String
+            argList = argList.split(' ').join().chars
         end
         
         paramList = argList.map{|arg| param_transform.call(arg)}
