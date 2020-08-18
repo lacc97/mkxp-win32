@@ -83,6 +83,10 @@ WIN32_API void kernel32_RtlZeroMemory(
     SIZE_T nSize
 );
 
+WIN32_API void kernel32_SetLastError(
+    DWORD dwErrCode
+);
+
 WIN32_API int kernel32_WideCharToMultiByte(
     UINT CodePage,
     DWORD dwFlags,

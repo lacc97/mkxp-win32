@@ -9,6 +9,8 @@
 #include "utils.h"
 
 namespace {
+    thread_local DWORD tl_LastError = 0;
+
     inline std::string toUnixPath(std::string_view winpath) {
         if(winpath.size() >= 2 && winpath[1] == ':')
             winpath = winpath.substr(2);
@@ -19,7 +21,7 @@ namespace {
 
 
 WIN32_API DWORD kernel32_GetLastError(void) {
-    return 0;
+    return tl_LastError;
 }
 
 WIN32_API UINT kernel32_GetPrivateProfileInt(LPCTSTR lpAppName, LPCTSTR lpKeyName, INT nDefault, LPCTSTR lpFileName) {
@@ -173,6 +175,10 @@ WIN32_API void kernel32_RtlZeroMemory(PVOID pDestination, SIZE_T nSize) {
     SPDLOG_TRACE("kernel32::RtlZeroMemory(pDestination={}, nSize={})", pDestination, nSize);
 
     std::memset(pDestination, 0, nSize);
+}
+
+void kernel32_SetLastError(DWORD dwErrCode) {
+    tl_LastError = dwErrCode;
 }
 
 WIN32_API int kernel32_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int cchWideChar,
