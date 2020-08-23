@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include <algorithm>
 #include <random>
 
 #include <buffer/buffer_span.hpp>
@@ -60,16 +61,14 @@ int wfcrypt_encrypt(char* plainText, int nb, int nk, char* iv, const char* key, 
   rijndael::Context ctx{static_cast<uint32_t>(nb), buffer::byte_buffer_view{key, sizeof(uint32_t) * nk}};
   {
     const buffer::byte_buffer_span initVector = buffer::to_byte_span(ivBuf);
-    buffer::byte_buffer_view{iv, static_cast<uint32_t>(nb)}.copy_to(initVector);
+    buffer::byte_buffer_view{iv, ctx.blockSize()}.copy_to(initVector);
 
     buffer::byte_buffer_span text = buffer::byte_buffer_span{plainText, static_cast<uint32_t>(plainTextLength)};
     while(!text.empty()) {
       buffer::byte_buffer_span block = text.take_first(sizeof(uint32_t) * nb);
 
-      for(uint32_t ii = 0; ii < uint32_t(nb); ++ii) {
-        uint32_t w = block.at<uint32_t>(sizeof(uint32_t) * ii);
-        block.set<uint32_t>(sizeof(uint32_t) * ii, w ^ initVector[ii]);
-      }
+      std::transform(block.begin(), block.end(), initVector.begin(), block.begin(),
+                     [](uint8_t b, uint8_t v) -> uint8_t { return b ^ v; });
 
       ctx.encrypt(block);
 
@@ -102,7 +101,7 @@ int wfcrypt_decrypt(char* cipherText, int nb, int nk, const char* iv, const char
   rijndael::Context ctx{static_cast<uint32_t>(nb), buffer::byte_buffer_view{key, sizeof(uint32_t) * nk}};
   {
     buffer::byte_buffer_span initVector = buffer::to_byte_span(ivBuf1);
-    buffer::byte_buffer_view{iv, static_cast<uint32_t>(nb)}.copy_to(initVector);
+    buffer::byte_buffer_view{iv, ctx.blockSize()}.copy_to(initVector);
 
     buffer::byte_buffer_span nextInitVector = buffer::to_byte_span(ivBuf2);
 
@@ -113,10 +112,8 @@ int wfcrypt_decrypt(char* cipherText, int nb, int nk, const char* iv, const char
 
       ctx.decrypt(block);
 
-      for(uint32_t ii = 0; ii < uint32_t(nb); ++ii) {
-        uint32_t w = block.at<uint32_t>(sizeof(uint32_t) * ii);
-        block.set<uint32_t>(sizeof(uint32_t) * ii, w ^ initVector[ii]);
-      }
+      std::transform(block.begin(), block.end(), initVector.begin(), block.begin(),
+                     [](uint8_t b, uint8_t v) -> uint8_t { return b ^ v; });
 
       std::swap(initVector, nextInitVector);
     }
