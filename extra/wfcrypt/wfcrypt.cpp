@@ -35,7 +35,7 @@ namespace wflib {
   }    // namespace
 }    // namespace wflib
 
-int wfcrypt_encrypt(char* plainText, int nb, int nk, char* iv, const char* key, int plainTextLength) {
+WIN32_API int wfcrypt_encrypt(char* plainText, int nb, int nk, char* iv, const char* key, int plainTextLength) {
   using namespace wflib;
 
   auto fn_is_valid_n = [](uint32_t n) -> bool {
@@ -79,7 +79,7 @@ int wfcrypt_encrypt(char* plainText, int nb, int nk, char* iv, const char* key, 
   kernel32_SetLastError(0);
   return true;
 }
-int wfcrypt_decrypt(char* cipherText, int nb, int nk, const char* iv, const char* key, int cipherTextLength) {
+WIN32_API int wfcrypt_decrypt(char* cipherText, int nb, int nk, const char* iv, const char* key, int cipherTextLength) {
   using namespace wflib;
 
   auto fn_is_valid_n = [](uint32_t n) -> bool {
