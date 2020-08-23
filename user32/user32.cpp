@@ -236,6 +236,8 @@ WIN32_API int user32_GetSystemMetrics(int nIndex) {
 
             if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(getMkxpWindow()), &rect) == 0)
                 return rect.w;
+
+            break;
         }
 
         case 1: {    // CYSCREEN
@@ -243,6 +245,8 @@ WIN32_API int user32_GetSystemMetrics(int nIndex) {
 
             if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(getMkxpWindow()), &rect) == 0)
                 return rect.h;
+
+            break;
         }
 
     }
