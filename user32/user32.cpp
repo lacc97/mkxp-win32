@@ -234,7 +234,7 @@ WIN32_API int user32_GetSystemMetrics(int nIndex) {
         case 0: {     // CXSCREEN
             SDL_Rect rect;
 
-            if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(getMkxpWindow()), &rect) == 0)
+            if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(mkxp::getWindow()), &rect) == 0)
                 return rect.w;
 
             break;
@@ -243,7 +243,7 @@ WIN32_API int user32_GetSystemMetrics(int nIndex) {
         case 1: {    // CYSCREEN
             SDL_Rect rect;
 
-            if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(getMkxpWindow()), &rect) == 0)
+            if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(mkxp::getWindow()), &rect) == 0)
                 return rect.h;
 
             break;
@@ -324,7 +324,7 @@ WIN32_API HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
         return toHWND(NULL);
     }
 
-    return toHWND(getMkxpWindow());
+    return toHWND(mkxp::getWindow());
 }
 
 WIN32_API int user32_MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType) {
@@ -594,7 +594,7 @@ WIN32_API UINT user32_SendInput(UINT cInputs, LPINPUT pInputs, int cbSize) {
 }
 
 BOOL user32_SetCursorPos(int X, int Y) {
-  SDL_WarpMouseInWindow(getMkxpWindow(), X, Y);
+  SDL_WarpMouseInWindow(mkxp::getWindow(), X, Y);
   return TRUE;
 }
 
@@ -780,7 +780,7 @@ WIN32_API BOOL user32_SystemParametersInfoA(UINT uiAction, UINT uiParam, PVOID p
         case 0x0030: {  // SPI_GETWORKAREA
             SDL_Rect rect;
 
-            if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(getMkxpWindow()), &rect) != 0) {
+            if(SDL_GetDisplayBounds(SDL_GetWindowDisplayIndex(mkxp::getWindow()), &rect) != 0) {
                 spdlog::error("Failed to obtain desktop size");
                 return FALSE;
             }

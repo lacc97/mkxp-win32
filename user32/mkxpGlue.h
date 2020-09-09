@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
-extern SDL_Window* getMkxpWindow();
+namespace mkxp {
+  SDL_Window* getWindow() noexcept;
+}
 
 #endif
