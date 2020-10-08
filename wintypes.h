@@ -35,9 +35,13 @@ typedef unsigned char   BYTE;
 
 typedef char            CHAR;
 typedef char16_t        WCHAR;
+typedef int8_t          INT8;
+typedef uint8_t         UINT8;
 
 typedef int16_t         SHORT;
 typedef uint16_t        USHORT;
+typedef int16_t         INT16;
+typedef uint16_t        UINT16;
 
 typedef int32_t         INT;
 typedef uint32_t        UINT;
@@ -57,10 +61,8 @@ typedef uint32_t        DWORD;
 typedef WORD*           LPWORD;
 typedef DWORD*          LPDWORD;
 
-typedef UINT32           HANDLE;
-typedef HANDLE          HBRUSH;
+typedef UINT32          HANDLE;
 typedef HANDLE          HDC;
-typedef HANDLE          HGDIOBJ;
 typedef HANDLE          HINSTANCE;
 typedef HANDLE          HMENU;
 typedef HANDLE          HWND;

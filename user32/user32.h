@@ -3,6 +3,8 @@
 
 #include "wintypes.h"
 
+#include "gdi32.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
