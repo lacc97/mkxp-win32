@@ -13,6 +13,7 @@ set(WIN32_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/advapi32
     ${CMAKE_CURRENT_SOURCE_DIR}/gdi32
     ${CMAKE_CURRENT_SOURCE_DIR}/kernel32
+    ${CMAKE_CURRENT_SOURCE_DIR}/rpcrt4
     ${CMAKE_CURRENT_SOURCE_DIR}/user32)
 
 if(${BUILD_WIN32_STATIC})
@@ -46,6 +47,7 @@ add_subdirectory(advapi32/)
 add_subdirectory(common/)
 add_subdirectory(gdi32/)
 add_subdirectory(kernel32/)
+add_subdirectory(rpcrt4/)
 add_subdirectory(user32/)
 
 add_subdirectory(extra/camouse)
