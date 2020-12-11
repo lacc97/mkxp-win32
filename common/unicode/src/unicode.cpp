@@ -51,7 +51,7 @@ std::optional<unicode::string> unicode::UTF16Converter::fromBytes(std::string_vi
     auto errCode = UErrorCode{U_ZERO_ERROR};
     auto outBufStart = ucharsDone + outBuf;
 
-    ucnv_toUnicode(mp_Converter, &outBuf, outBuf + out.size(), &inBuf, inBuf + str.length(), nullptr, TRUE, &errCode);
+    ucnv_toUnicode(mp_Converter, &outBuf, outBuf + out.size(), &inBuf, inBuf + str.length(), nullptr, true, &errCode);
     ucharsDone += (outBuf - outBufStart);
 
     if(U_SUCCESS(errCode)) {
@@ -88,7 +88,7 @@ std::optional<std::string> unicode::UTF16Converter::toBytes(unicode::string_view
     auto outBufStart = charsDone + outBuf;
 
     ucnv_fromUnicode(mp_Converter, &outBuf, outBuf + out.size(), &inBuf, inBuf + str.length(), nullptr,
-                     TRUE, &errCode);
+                     true, &errCode);
     charsDone += (outBuf - outBufStart);
 
     if(U_SUCCESS(errCode)) {
