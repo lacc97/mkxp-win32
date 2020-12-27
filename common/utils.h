@@ -9,6 +9,14 @@
 
 namespace str {
   namespace view {
+    inline bool starts_with(std::string_view s, std::string_view pat) noexcept {
+#if __cplusplus >= 202002L
+      return s.starts_with(pat);
+#else
+      return (pat.size() <= s.size()) && (s.substr(0, pat.size()) == pat);
+#endif
+    }
+
     std::vector<std::string_view> tokenize(std::string_view s, std::string_view delims);
 
     std::string_view ltrim(std::string_view s, std::string_view chars = "\t\n\v\f\r ") noexcept;

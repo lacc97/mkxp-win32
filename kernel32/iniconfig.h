@@ -20,16 +20,16 @@ class INIConfiguration {
       std::string m_Value;
     };
 
-    typedef std::map<std::string, Property> property_map;
+    typedef std::map<std::string, Property, std::less<>> property_map;
 
    public:
     Section(const Section& s) = default;
     Section(Section&& s) = default;
 
-    std::optional<std::string> getStringProperty(const std::string& name) const;
-    std::optional<std::vector<std::string>> getStringListProperty(const std::string& name) const;
-    std::optional<int32_t> getIntProperty(const std::string& name) const;
-    std::optional<double> getFloatProperty(const std::string& name) const;
+    std::optional<std::string> getStringProperty(std::string_view name) const;
+    std::optional<std::vector<std::string>> getStringListProperty(std::string_view name) const;
+    std::optional<int32_t> getIntProperty(std::string_view name) const;
+    std::optional<double> getFloatProperty(std::string_view name) const;
 
     std::vector<std::string> getEntries() const;
     std::vector<std::string> getKeyNames() const;
@@ -41,7 +41,7 @@ class INIConfiguration {
     property_map m_PropertyMap;
   };
 
-  typedef std::map<std::string, Section> section_map;
+  typedef std::map<std::string, Section, std::less<>> section_map;
 
  public:
   bool load(const std::filesystem::path& filepath);
@@ -50,32 +50,32 @@ class INIConfiguration {
   bool save(const std::filesystem::path& filepath) const;
   bool save(std::ostream& outStream) const;
 
-  void clearSection(const std::string& sname);
+  void clearSection(std::string_view sname);
 
-  std::string getStringProperty(const std::string& sname, const std::string& name, const std::string& def = "") const;
-  std::vector<std::string> getStringListProperty(const std::string& sName, const std::string& name,
+  std::string getStringProperty(std::string_view sname, std::string_view name, std::string_view def = "") const;
+  std::vector<std::string> getStringListProperty(std::string_view sName, std::string_view name,
                                                  const std::vector<std::string>& def = std::vector<std::string>()) const;
-  int32_t getIntProperty(const std::string& sName, const std::string& name, int32_t def = 0) const;
-  double getFloatProperty(const std::string& sName, const std::string& name, double def = 0.0) const;
+  int32_t getIntProperty(std::string_view sName, std::string_view name, int32_t def = 0) const;
+  double getFloatProperty(std::string_view sName, std::string_view name, double def = 0.0) const;
 
-  void addSection(const std::string& sname);
-  void addRawProperty(const std::string& sname, const std::string& raw);
+  void addSection(std::string_view sname);
+  void addRawProperty(std::string_view sname, std::string_view raw);
 
-  void setStringProperty(const std::string& sname, const std::string& name, const std::string& val);
-  void setStringListProperty(const std::string& sname, const std::string& name, const std::vector<std::string>& val);
-  void setIntProperty(const std::string& sname, const std::string& name, int32_t val);
-  void setFloatProperty(const std::string& sname, const std::string& name, double val);
+  void setStringProperty(std::string_view sname, std::string_view name, std::string_view val);
+  void setStringListProperty(std::string_view sname, std::string_view name, const std::vector<std::string>& val);
+  void setIntProperty(std::string_view sname, std::string_view name, int32_t val);
+  void setFloatProperty(std::string_view sname, std::string_view name, double val);
 
   std::vector<std::string> getSectionNames() const;
-  std::vector<std::string> getEntries(const std::string& sname) const;
-  std::vector<std::string> getKeyNames(const std::string& sname) const;
+  std::vector<std::string> getEntries(std::string_view sname) const;
+  std::vector<std::string> getKeyNames(std::string_view sname) const;
 
  protected:
-  static bool parseProperty(const std::string& raw, std::string& key, std::string& val);
+  static bool parseProperty(std::string_view raw, std::string_view& key, std::string_view& val);
 
-  void addProperty(const std::string& sname, const std::string& name, const std::string& val);
+  void addProperty(std::string_view sname, std::string_view name, std::string_view val);
 
-  std::optional<std::reference_wrapper<const Section>> getSection(const std::string& sname) const;
+  std::optional<std::reference_wrapper<const Section>> getSection(std::string_view sname) const;
 
  private:
   section_map m_SectionMap;
