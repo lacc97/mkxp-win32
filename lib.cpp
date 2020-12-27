@@ -41,6 +41,13 @@ namespace {
 
 
     __attribute__((constructor)) void setupLogger() {
+#if SPDLOG_ACTIVE_LEVEL == SPDLOG_LEVEL_TRACE
+        spdlog::set_level(spdlog::level::trace);
+#elif SPDLOG_ACTIVE_LEVEL == SPDLOG_LEVEL_DEBUG
+        spdlog::set_level(spdlog::level::debug);
+#else
+        spdlog::set_level(spdlog::level::info);
+#endif
         spdlog::set_pattern("[%Y-%m-%d %T.%e] [%^%L%$] %v");
     }
 }

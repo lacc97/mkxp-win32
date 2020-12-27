@@ -29,7 +29,7 @@ endif()
     target_compile_definitions(win32api
         PRIVATE
             WIN32_EXPORTS
-            $<$<CONFIG:Debug>:TRACE>)
+            $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
     target_include_directories(win32api
         PUBLIC
             ${WIN32_INCLUDE_DIRS}
@@ -39,7 +39,7 @@ endif()
         PRIVATE
             unicode
             PkgConfig::SDL2
-            spdlog::spdlog_header_only)
+            spdlog::spdlog)
 
 add_subdirectory(rgssad/)
 
