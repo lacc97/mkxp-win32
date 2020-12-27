@@ -1,12 +1,13 @@
 #include "iniconfig.h"
 
+#include <fstream>
 #include <map>
 
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
 #include <utility>
+
+#include "utils.h"
+
 template<typename TK, typename TV>
 std::vector<TK> extract_keys(std::map<TK, TV> const& input_map) {
     std::vector<TK> retval;
@@ -32,46 +33,43 @@ std::vector<TV> extract_values(std::map<TK, TV> const& input_map) {
 INIConfiguration::Section::Section(std::string  sName) : m_Name(std::move(sName)), m_PropertyMap() {
 }
 
-boost::optional<std::string> INIConfiguration::Section::getStringProperty(const std::string& name) const {
+std::optional<std::string> INIConfiguration::Section::getStringProperty(const std::string& name) const {
     try {
-        return m_PropertyMap.at(boost::to_lower_copy(name)).m_Value;
+        return m_PropertyMap.at(str::to_lower(name)).m_Value;
     } catch(std::out_of_range& oorexcept) {
-        return boost::none;
+        return std::nullopt;
     }
 }
 
-boost::optional<std::vector<std::string>>
+std::optional<std::vector<std::string>>
 INIConfiguration::Section::getStringListProperty(const std::string& name) const {
     try {
-        const std::string& propVal = m_PropertyMap.at(boost::to_lower_copy(name)).m_Value;
+        std::string_view propVal = m_PropertyMap.at(str::to_lower(name)).m_Value;
 
-        std::vector<std::string> list;
-        boost::split(list, propVal, [](char c) {
-            return c == ',';
-        });
+        std::vector<std::string> list = str::tokenize(propVal, ",");
         std::for_each(list.begin(), list.end(), [](std::string& s) {
-            boost::trim(s);
+          s = str::view::trim(s);
         });
 
         return list;
     } catch(std::out_of_range& oorexcept) {
-        return boost::none;
+        return std::nullopt;
     }
 }
 
-boost::optional<int32_t> INIConfiguration::Section::getIntProperty(const std::string& name) const {
+std::optional<int32_t> INIConfiguration::Section::getIntProperty(const std::string& name) const {
     try {
-        return boost::lexical_cast<int32_t>(m_PropertyMap.at(boost::to_lower_copy(name)).m_Value);
+        return boost::lexical_cast<int32_t>(m_PropertyMap.at(str::to_lower(name)).m_Value);
     } catch(std::out_of_range& oorexcept) {
-        return boost::none;
+        return std::nullopt;
     }
 }
 
-boost::optional<double> INIConfiguration::Section::getFloatProperty(const std::string& name) const {
+std::optional<double> INIConfiguration::Section::getFloatProperty(const std::string& name) const {
     try {
-        return boost::lexical_cast<double>(m_PropertyMap.at(boost::to_lower_copy(name)).m_Value);
+        return boost::lexical_cast<double>(m_PropertyMap.at(str::to_lower(name)).m_Value);
     } catch(std::out_of_range& oorexcept) {
-        return boost::none;
+        return std::nullopt;
     }
 }
 
@@ -92,8 +90,8 @@ std::vector<std::string> INIConfiguration::Section::getKeyNames() const {
     return extract_keys(m_PropertyMap);
 }
 
-bool INIConfiguration::load(const boost::filesystem::path& filepath) {
-    std::ifstream fis(filepath.string());
+bool INIConfiguration::load(const std::filesystem::path& filepath) {
+    std::ifstream fis(filepath);
 
     return load(fis);
 }
@@ -129,8 +127,8 @@ bool INIConfiguration::load(std::istream& inStream) {
     return !inStream.bad();
 }
 
-bool INIConfiguration::save(const boost::filesystem::path& filepath) const {
-    std::ofstream os(filepath.string());
+bool INIConfiguration::save(const std::filesystem::path& filepath) const {
+    std::ofstream os(filepath);
 
     return save(os);
 }
@@ -225,8 +223,8 @@ double INIConfiguration::getFloatProperty(const std::string& sName, const std::s
 }
 
 void INIConfiguration::addSection(const std::string& sName) {
-    if(!getSection(boost::to_lower_copy(sName)))
-        m_SectionMap.emplace(boost::to_lower_copy(sName), Section(sName));
+    if(!getSection(str::to_lower(sName)))
+        m_SectionMap.emplace(str::to_lower(sName), Section(sName));
 }
 
 void INIConfiguration::addRawProperty(const std::string& sName, const std::string& raw) {
@@ -284,7 +282,7 @@ std::vector<std::string> INIConfiguration::getEntries(const std::string& sName) 
     if(!sectionOptional)
         return std::vector<std::string>();
 
-    return sectionOptional->getEntries();
+    return sectionOptional->get().getEntries();
 }
 
 std::vector<std::string> INIConfiguration::getKeyNames(const std::string& sName) const {
@@ -293,7 +291,7 @@ std::vector<std::string> INIConfiguration::getKeyNames(const std::string& sName)
     if(!sectionOptional)
         return std::vector<std::string>();
 
-    return sectionOptional->getKeyNames();
+    return sectionOptional->get().getKeyNames();
 }
 
 bool INIConfiguration::parseProperty(const std::string& raw, std::string& key, std::string& val) {
@@ -317,16 +315,16 @@ bool INIConfiguration::parseProperty(const std::string& raw, std::string& key, s
 
 void INIConfiguration::addProperty(const std::string& sName, const std::string& name, const std::string& val) {
     Section::Property p;
-    p.m_Name = boost::trim_copy(name);
-    p.m_Value = boost::trim_copy(val);
+    p.m_Name = str::view::trim(name);
+    p.m_Value = str::view::trim(val);
 
-    m_SectionMap.at(boost::to_lower_copy(sName)).m_PropertyMap[boost::to_lower_copy(p.m_Name)] = p;
+    m_SectionMap.at(str::to_lower(sName)).m_PropertyMap[str::to_lower(p.m_Name)] = p;
 }
 
-boost::optional<const INIConfiguration::Section&> INIConfiguration::getSection(const std::string& sName) const {
+std::optional<std::reference_wrapper<const INIConfiguration::Section>> INIConfiguration::getSection(const std::string& sName) const {
     try {
-        return m_SectionMap.at(boost::to_lower_copy(sName));
+        return m_SectionMap.at(str::to_lower(sName));
     } catch(std::out_of_range& ex) {
-        return boost::none;
+        return std::nullopt;
     }
 }

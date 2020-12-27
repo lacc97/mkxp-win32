@@ -7,11 +7,36 @@
 #include <string>
 #include <vector>
 
-namespace String {
+namespace str {
+  namespace view {
+    std::vector<std::string_view> tokenize(std::string_view s, std::string_view delims);
+
+    std::string_view ltrim(std::string_view s, std::string_view chars = "\t\n\v\f\r ") noexcept;
+    std::string_view rtrim(std::string_view s, std::string_view chars = "\t\n\v\f\r ") noexcept;
+    inline std::string_view trim(std::string_view s, std::string_view chars = "\t\n\v\f\r ") noexcept {
+      return rtrim(ltrim(s, chars), chars);
+    }
+  }    // namespace view
+
   std::string replace_all(std::string_view str, std::string_view pattern, std::string_view replacement);
 
-  //    std::vector<std::string_view> tokenize(std::string_view str, std::string_view delim);
-}    // namespace String
+  inline std::vector<std::string> tokenize(std::string_view s, std::string_view delims) {
+    auto token_views = view::tokenize(s, delims);
+    return std::vector<std::string>(token_views.begin(), token_views.end());
+  }
+
+  std::string to_lower(std::string_view s);
+
+  inline std::string ltrim(std::string_view s, std::string_view chars = "\t\b\v\f\r ") {
+    return std::string(view::ltrim(s, chars));
+  }
+  inline std::string rtrim(std::string_view s, std::string_view chars = "\t\b\v\f\r ") {
+    return std::string(view::rtrim(s, chars));
+  }
+  inline std::string trim(std::string_view s, std::string_view chars = "\t\b\v\f\r ") {
+    return std::string(view::trim(s, chars));
+  }
+}    // namespace str
 
 namespace bits {
   template <typename T>
@@ -118,10 +143,9 @@ namespace bytes {
   }
 
   template <typename F>
-  inline constexpr std::enable_if_t<std::is_invocable_r_v<uint8_t, F, uint8_t, uint8_t>, uint32_t>
-  transform(uint32_t i1, uint32_t i2, F&& f) noexcept {
-    uint8_t lls = f(int32::lls(i1), int32::lls(i2)), ls = f(int32::ls(i1), int32::ls(i2)),
-            ms = f(int32::ms(i1), int32::ms(i2)), mms = f(int32::mms(i1), int32::mms(i2));
+  inline constexpr std::enable_if_t<std::is_invocable_r_v<uint8_t, F, uint8_t, uint8_t>, uint32_t> transform(uint32_t i1, uint32_t i2, F&& f) noexcept {
+    uint8_t lls = f(int32::lls(i1), int32::lls(i2)), ls = f(int32::ls(i1), int32::ls(i2)), ms = f(int32::ms(i1), int32::ms(i2)),
+            mms = f(int32::mms(i1), int32::mms(i2));
     return concat4(lls, ls, ms, mms);
   }
 

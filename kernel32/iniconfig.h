@@ -1,12 +1,11 @@
 #ifndef INICONFIG_H
 #define INICONFIG_H
 
+#include <filesystem>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <vector>
-
-#include <boost/filesystem.hpp>
-#include <boost/optional.hpp>
 
 class INIConfiguration {
         friend class INIParser;
@@ -27,13 +26,13 @@ class INIConfiguration {
 
                 Section(Section&& s) = default;
 
-                boost::optional<std::string> getStringProperty(const std::string& name) const;
+                std::optional<std::string> getStringProperty(const std::string& name) const;
 
-                boost::optional<std::vector<std::string>> getStringListProperty(const std::string& name) const;
+                std::optional<std::vector<std::string>> getStringListProperty(const std::string& name) const;
 
-                boost::optional<int32_t> getIntProperty(const std::string& name) const;
+                std::optional<int32_t> getIntProperty(const std::string& name) const;
 
-                boost::optional<double> getFloatProperty(const std::string& name) const;
+                std::optional<double> getFloatProperty(const std::string& name) const;
 
                 std::vector<std::string> getEntries() const;
 
@@ -48,11 +47,11 @@ class INIConfiguration {
 
         typedef std::map<std::string, Section> section_map;
     public:
-        bool load(const boost::filesystem::path& filepath);
+        bool load(const std::filesystem::path& filepath);
 
         bool load(std::istream& inStream);
 
-        bool save(const boost::filesystem::path& filepath) const;
+        bool save(const std::filesystem::path& filepath) const;
 
         bool save(std::ostream& outStream) const;
 
@@ -92,7 +91,7 @@ class INIConfiguration {
 
         void addProperty(const std::string& sname, const std::string& name, const std::string& val);
 
-        boost::optional<const Section&> getSection(const std::string& sname) const;
+        std::optional<std::reference_wrapper<const Section>> getSection(const std::string& sname) const;
 
     private:
         section_map m_SectionMap;

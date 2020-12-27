@@ -15,7 +15,7 @@ namespace {
         if(winpath.size() >= 2 && winpath[1] == ':')
             winpath = winpath.substr(2);
 
-        return String::replace_all(winpath, "\\", "/");
+        return str::replace_all(winpath, "\\", "/");
     }
 }
 
