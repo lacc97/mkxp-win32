@@ -139,6 +139,8 @@ WIN32_API int kernel32_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCCH l
                                            LPWSTR lpWideCharStr, int cchWideChar) {
     unicode::UTF16Converter conv{CodePage};
 
+    SPDLOG_TRACE("kernel32::MultiByteToWideChar(CodePage={}, dwFlags={}, lpMultiByteStr=\"{}\", cbMultiByte={}, lpWideCharStr={}, cchWideChar={})", CodePage, dwFlags, utf8(*conv.fromBytes(cbMultiByte == -1 ? std::string_view(lpMultiByteStr) : std::string_view(lpMultiByteStr, cbMultiByte))), cbMultiByte, (void*)lpWideCharStr, cchWideChar);
+
     std::string_view mbstr;
     if(cbMultiByte == -1)
         mbstr = std::string_view{lpMultiByteStr};
@@ -185,6 +187,8 @@ WIN32_API int kernel32_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH 
                                            LPSTR lpMultiByteStr, int cbMultiByte, LPCCH lpDefaultChar,
                                            LPBOOL lpUsedDefaultChar) {
     unicode::UTF16Converter conv{CodePage};
+
+  SPDLOG_TRACE("kernel32::MultiByteToWideChar(CodePage={}, dwFlags={}, lpWideCharStr=\"{}\", cchWideChar={}, lpMultiByteStr={}, cbMultiByte={}, lpDefaultChar={}, lpUsedDefaultChar={})", CodePage, dwFlags, utf8(cchWideChar == -1 ? unicode::string_view(lpWideCharStr) : unicode::string_view(lpWideCharStr, cchWideChar)), cchWideChar, (void*)lpMultiByteStr, cbMultiByte, (void*)lpDefaultChar, (void*)lpUsedDefaultChar);
 
     unicode::string_view wcstr;
     if(cchWideChar == -1)
