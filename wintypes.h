@@ -61,7 +61,7 @@ typedef uint32_t        DWORD;
 typedef WORD*           LPWORD;
 typedef DWORD*          LPDWORD;
 
-typedef UINT32          HANDLE;
+typedef uintptr_t       HANDLE;
 typedef HANDLE          HDC;
 typedef HANDLE          HINSTANCE;
 typedef HANDLE          HMENU;
