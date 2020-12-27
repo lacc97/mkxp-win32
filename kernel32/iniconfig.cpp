@@ -291,7 +291,7 @@ bool INIConfiguration::parseProperty(std::string_view raw, std::string_view& key
       val = val.substr(1);
 
     if(val.back() == '"' || val.back() == '\'')
-      val.substr(0, val.length() - 1);
+      val = val.substr(0, val.length() - 1);
 
     return true;
   }
