@@ -316,7 +316,7 @@ WIN32_API HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
     if(lpWindowName) {
         SPDLOG_TRACE("user32::FindWindowA(lpClassName=\"{}\", lpWindowName=\"{}\")", lpClassName, lpWindowName);
     } else {
-        SPDLOG_TRACE("user32::FindWindowA(lpClassName=\"{}\", lpWindowName=0x0", lpClassName);
+        SPDLOG_TRACE("user32::FindWindowA(lpClassName=\"{}\", lpWindowName=0x0)", lpClassName);
     }
 
     if(std::strcmp(lpClassName, "RGSS Player") != 0) {
@@ -331,7 +331,13 @@ HWND user32_FindWindowEx(HWND hWndParent, HWND hWndChildAfter, LPCTSTR lpszClass
   return user32_FindWindowExA(hWndParent, hWndChildAfter, lpszClass, lpszWindow);
 }
 HWND user32_FindWindowExA(HWND hWndParent, HWND hWndChildAfter, LPCSTR lpszClass, LPCSTR lpszWindow) {
-  SPDLOG_TRACE("user32::FindWindowExA(hWndParent={}, hWndChildAfter={}, lpszClass=\"{}\", lpszWindow=\"{}\")", (void*)hWndParent, (void*)hWndChildAfter, lpszClass, lpszWindow);
+  if(lpszWindow) {
+      SPDLOG_TRACE("user32::FindWindowExA(hWndParent={}, hWndChildAfter={}, lpszClass=\"{}\", lpszWindow=\"{}\")", (void*) hWndParent, (void*) hWndChildAfter,
+                   lpszClass, lpszWindow);
+  } else {
+      SPDLOG_TRACE("user32::FindWindowExA(hWndParent={}, hWndChildAfter={}, lpszClass=\"{}\", lpszWindow=0x0)", (void*) hWndParent, (void*) hWndChildAfter,
+                   lpszClass);
+  }
 
   if(!hWndParent)
     return user32_FindWindowA(lpszClass, lpszWindow);
