@@ -100,6 +100,19 @@ WIN32_API HWND user32_FindWindowA(
         LPCSTR lpWindowName
 );
 
+WIN32_API HWND user32_FindWindowEx(
+        HWND   hWndParent,
+        HWND   hWndChildAfter,
+        LPCTSTR lpszClass,
+        LPCTSTR lpszWindow
+);
+WIN32_API HWND user32_FindWindowExA(
+        HWND   hWndParent,
+        HWND   hWndChildAfter,
+        LPCSTR lpszClass,
+        LPCSTR lpszWindow
+);
+
 WIN32_API int user32_MessageBox(
         HWND hWnd,
         LPCTSTR lpText,

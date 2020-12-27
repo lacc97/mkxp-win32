@@ -327,6 +327,18 @@ WIN32_API HWND user32_FindWindowA(LPCSTR lpClassName, LPCSTR lpWindowName) {
     return toHWND(mkxp::getWindow());
 }
 
+HWND user32_FindWindowEx(HWND hWndParent, HWND hWndChildAfter, LPCTSTR lpszClass, LPCTSTR lpszWindow) {
+  return user32_FindWindowExA(hWndParent, hWndChildAfter, lpszClass, lpszWindow);
+}
+HWND user32_FindWindowExA(HWND hWndParent, HWND hWndChildAfter, LPCSTR lpszClass, LPCSTR lpszWindow) {
+  SPDLOG_TRACE("user32::FindWindowExA(hWndParent={}, hWndChildAfter={}, lpszClass=\"{}\", lpszWindow=\"{}\")", (void*)hWndParent, (void*)hWndChildAfter, lpszClass, lpszWindow);
+
+  if(!hWndParent)
+    return user32_FindWindowA(lpszClass, lpszWindow);
+
+  return toHWND(nullptr);
+}
+
 WIN32_API int user32_MessageBox(HWND hWnd, LPCTSTR lpText, LPCTSTR lpCaption, UINT uType) {
     return user32_MessageBoxA(hWnd, lpText, lpCaption, uType);
 }
