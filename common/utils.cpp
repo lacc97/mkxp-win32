@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <algorithm>
+
 std::string str::replace_all(std::string_view str, std::string_view pattern, std::string_view replacement) {
   using ssize_t = std::make_signed_t<size_t>;
 
@@ -29,6 +31,12 @@ std::string str::replace_all(std::string_view str, std::string_view pattern, std
   return newString;
 }
 
+std::string str::to_lower(std::string_view s) {
+  std::string l(s.size(), 0);
+  std::transform(s.begin(), s.end(), l.begin(), ::tolower);
+  return l;
+}
+
 std::vector<std::string_view> str::view::tokenize(std::string_view s, std::string_view delims) {
   std::vector<std::string_view> tokens;
 
@@ -47,6 +55,7 @@ std::vector<std::string_view> str::view::tokenize(std::string_view s, std::strin
 
   return tokens;
 }
+
 std::string_view str::view::ltrim(std::string_view s, std::string_view chars) noexcept {
   auto pos = s.find_first_not_of(chars);
   if(pos == std::string_view::npos)
