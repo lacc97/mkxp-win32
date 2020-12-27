@@ -55,24 +55,26 @@ std::optional<std::vector<std::string>> INIConfiguration::Section::getStringList
 }
 
 std::optional<int32_t> INIConfiguration::Section::getIntProperty(std::string_view name) const {
-  std::string_view prop = m_PropertyMap.at(str::to_lower(name)).m_Value;
+  try {
+    std::string_view prop = m_PropertyMap.at(str::to_lower(name)).m_Value;
 
-  int32_t base = 10;
-  if(str::view::starts_with(prop, "0x") || str::view::starts_with(prop, "0X")) {
-    base = 16;
-    prop = prop.substr(2);
-  }
-  //  else if(str::view::starts_with(prop, "0")) {
-  //    base = 8;
-  //    prop = prop.substr(1);
-  //  }
+    int32_t base = 10;
+    if(str::view::starts_with(prop, "0x") || str::view::starts_with(prop, "0X")) {
+      base = 16;
+      prop = prop.substr(2);
+    }
+    //  else if(str::view::starts_with(prop, "0")) {
+    //    base = 8;
+    //    prop = prop.substr(1);
+    //  }
 
-  int32_t val;
-  auto [ptr, ec] = std::from_chars(prop.data(), prop.data() + prop.size(), val, base);
-  if(ec == std::errc())
-    return val;
-  else
-    return std::nullopt;
+    int32_t val;
+    auto [ptr, ec] = std::from_chars(prop.data(), prop.data() + prop.size(), val, base);
+    if(ec == std::errc())
+      return val;
+    else
+      return std::nullopt;
+  } catch(std::out_of_range& oorexcept) { return std::nullopt; }
 }
 
 std::optional<double> INIConfiguration::Section::getFloatProperty(std::string_view name) const {
