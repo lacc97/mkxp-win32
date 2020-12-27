@@ -21,15 +21,14 @@ typedef GUID CLSID;
 typedef GUID UUID;
 
 
-WIN32_API RPC_STATUS rpcrt4_UuidFromString(
-    RPC_CSTR StringUuid,
-    UUID     *Uuid
-);
-
+WIN32_API RPC_STATUS rpcrt4_UuidFromString(RPC_CSTR StringUuid, UUID* Uuid);
 
 #ifdef __cplusplus
 }
+#endif
 
+
+#ifdef __cplusplus
 inline bool operator==(const GUID& g1, const GUID& g2) noexcept {
   bool b1 = (g1.Data1 == g2.Data1) && (g1.Data2 == g2.Data2) && (g1.Data3 == g2.Data3);
   if(!b1)
@@ -44,4 +43,4 @@ inline bool operator==(const GUID& g1, const GUID& g2) noexcept {
 }
 #endif
 
-#endif // RPCRT4_H
+#endif    // RPCRT4_H
